@@ -1,10 +1,17 @@
 import React from "react";
-import { useState } from "react";
 
 function App() {
+  const handleLogin = () => {
+    const baseUrl = window.location.origin;
+
+    const loginUrl = `${baseUrl}/auth/github`;
+
+    window.location.href = loginUrl;
+  };
+
   return (
     <header>
-      <h1>Hello, world!</h1>
+      <button onClick={handleLogin}>Login with GitHub</button>
     </header>
   );
 }
