@@ -12,6 +12,7 @@ function App() {
 
   return (
     <header>
+      <h1>Login com Github</h1>
       <button onClick={handleLogin}>Login with GitHub</button>
     </header>
   );
