@@ -1,40 +1,28 @@
 import express from "express";
-import session from "express-session";
-import passport from "passport";
 import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
+import cors from "cors";
 
 dotenv.config();
 
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+const GITHUB_REDIRECT_URI = process.env.GITHUB_REDIRECT_URI;
+
 const app = express();
+const port = 3000;
 
-// Configuração de sessão para armazenar dados de autenticação
-app.use(session({ secret: "secret", resave: false, saveUninitialized: true }));
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Rota inical do fluxo de autenticação com Github
-app.get(
-  "/auth/github",
-  passport.authenticate("github", { scope: ["user:email"] })
+app.use(
+  cors({
+    origin: GITHUB_REDIRECT_URI,
+    methods: ["GET", "POST"],
+  })
 );
 
-// Callback após o Github redirecionar de volta
-app.get(
-  "/auth/github/callback",
-  passport.authenticate("github", { failureRedirect: "/" }),
-  (req, res) => {
-    // Gerar JWT após a autenticação
-    const jwtToken = generateJWT(req.user); // Gerando o JWT com os dados do usuário
-    res.json({ token: jwtToken }); // Retorna o JWT no corpo da resposta
-  }
-);
+// Redireciona para login do GitHub
+app.get("/auth/github", (req, res) => {
+  const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}&redirect_uri=${GITHUB_REDIRECT_URI}&scope=user`;
+  res.redirect(githubAuthUrl);
+});
 
-function generateJWT(user) {
-  return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
-}
-
-app.listen(3000, () => {
-  console.log("Server Running at 3000 port");
+app.listen(port, () => {
+  console.log(`Server running at port: ${port}`);
 });
