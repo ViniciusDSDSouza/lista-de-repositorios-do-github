@@ -14,6 +14,7 @@ const GITHUB_JWT_SECRET_KEY = process.env.GITHUB_JWT_SECRET_KEY;
 // Variáveis da API Github
 const GITHUB_AUTH_URL = process.env.GITHUB_AUTH_URL;
 const GITHUB_ACCESS_TOKKEN_URL = process.env.GITHUB_ACCESS_TOKKEN_URL;
+const GITHUB_CREATE_REPO_URL = process.env.GITHUB_CREATE_REPO_URL;
 
 // Variáveis FRONTEND
 const FRONTEND_REDIRECT_INDEX = process.env.FRONTEND_REDIRECT_INDEX;
@@ -24,6 +25,8 @@ const ENDPOINT_CALLBACK = process.env.ENDPOINT_CALLBACK;
 
 const app = express();
 const port = 3000;
+
+app.use(express.json());
 
 // CORS para comunicação com FRONTEND
 app.use(
@@ -36,7 +39,7 @@ app.use(
 
 // Endpoint autenticação GitHub
 app.get("/auth/github", (req, res) => {
-  const githubAuthUrl = `${GITHUB_AUTH_URL}client_id=${GITHUB_CLIENT_ID}&redirect_uri=${ENDPOINT_CALLBACK}&scope=user`;
+  const githubAuthUrl = `${GITHUB_AUTH_URL}client_id=${GITHUB_CLIENT_ID}&redirect_uri=${ENDPOINT_CALLBACK}&scope=repo`;
   res.redirect(githubAuthUrl);
 });
 
@@ -73,6 +76,11 @@ app.get("/auth/callback", async (req, res) => {
         .status(400)
         .send("Não foi possível encontrar o token de acesso");
     }
+
+    res.cookie("access_token", access_token, {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600000,
+    });
 
     // acess_token --> JWT
     const payload = { access_token };
@@ -123,7 +131,41 @@ app.get("/repos", async (req, res) => {
   }
 });
 
-app.post("/repos", (req, res) => {});
+app.post("/repos", async (req, res) => {
+  const { name, description, isPrivate } = req.body;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!name) {
+    return res.status(400).send("O nome do repositoório é obrigatório.");
+  }
+
+  if (!token) {
+    return res.status(400).send("Token de autenticação não encontrado.");
+  }
+
+  try {
+    const response = await axios.post(
+      GITHUB_CREATE_REPO_URL,
+      {
+        name,
+        description,
+        private: isPrivate,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "Application/vnd.github+json",
+        },
+      }
+    );
+
+    res.json(response.data);
+    console.log(response.data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Erro ao criar o repositório no Github.");
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running at port: ${port}`);
