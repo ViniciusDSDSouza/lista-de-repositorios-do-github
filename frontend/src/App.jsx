@@ -3,7 +3,7 @@ import React from "react";
 function App() {
   const handleLogin = () => {
     const backendUrl =
-      "https://bookish-guacamole-9rxx6x766x5c49r-3000.app.github.dev";
+      "http://localhost:3000";
 
     const loginUrl = `${backendUrl}/auth/github`;
 

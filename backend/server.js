@@ -79,9 +79,14 @@ app.get("/auth/callback", async (req, res) => {
     const secretKey = GITHUB_JWT_SECRET_KEY || "sua-chave-secreta";
     const token = jwt.sign(payload, secretKey, { expiresIn: "1h" });
 
+    res.cookie("jwt", token, {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600000,
+    });
+
     // Redireciona para repositórios
-    const frontendRedirectUrl = FRONTEND_REDIRECT_REPOS;
-    res.redirect(`${frontendRedirectUrl}?jwt=${token}`);
+    const frontendRedirectUrl = `${FRONTEND_REDIRECT_REPOS}?username=ViniciusDSDSouza&sort=stars&page=1`;
+    res.redirect(frontendRedirectUrl);
   } catch (err) {
     console.error(err);
     res.status(500).send("Erro durante callback Github OAuth");
@@ -117,6 +122,8 @@ app.get("/repos", async (req, res) => {
     res.status(500).send("Erro ao buscar repositórios do Github");
   }
 });
+
+app.post("/repos", (req, res) => {});
 
 app.listen(port, () => {
   console.log(`Server running at port: ${port}`);
