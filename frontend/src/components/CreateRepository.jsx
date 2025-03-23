@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
+import Navigation from "./Navigation";
+// import styles from "../styles/CreateRepository.module.css";
 
 function CreateRepository() {
   const [name, setName] = useState("");
@@ -46,29 +48,34 @@ function CreateRepository() {
 
   return (
     <div>
-      <h2>Criar Repositório</h2>
-      <input
-        type="text"
-        placeholder="Nome do repositório"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-      <textarea
-        placeholder="Descrição do repositório"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
-      <label>
+      <header>
+        <Navigation />
+      </header>
+      <main className="create-repository">
+        <h2>Criar Repositório</h2>
         <input
-          type="checkbox"
-          checked={isPrivate}
-          onChange={() => setIsPrivate(!isPrivate)}
+          type="text"
+          placeholder="Nome do repositório"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
-        Repositório privado
-      </label>
-      <button onClick={handleCreateRepo} disabled={loading}>
-        {loading ? "Criando..." : "Criar Repositório"}
-      </button>
+        <textarea
+          placeholder="Descrição do repositório"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <label>
+          <input
+            type="checkbox"
+            checked={isPrivate}
+            onChange={() => setIsPrivate(!isPrivate)}
+          />
+          Repositório privado
+        </label>
+        <button onClick={handleCreateRepo} disabled={loading}>
+          {loading ? "Criando..." : "Criar Repositório"}
+        </button>
+      </main>
     </div>
   );
 }

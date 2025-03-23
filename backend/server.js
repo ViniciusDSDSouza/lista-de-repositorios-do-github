@@ -15,6 +15,7 @@ const GITHUB_JWT_SECRET_KEY = process.env.GITHUB_JWT_SECRET_KEY;
 const GITHUB_AUTH_URL = process.env.GITHUB_AUTH_URL;
 const GITHUB_ACCESS_TOKKEN_URL = process.env.GITHUB_ACCESS_TOKKEN_URL;
 const GITHUB_CREATE_REPO_URL = process.env.GITHUB_CREATE_REPO_URL;
+const GITHUB_PAT = process.env.GITHUB_PAT;
 
 // Variáveis FRONTEND
 const FRONTEND_REDIRECT_INDEX = process.env.FRONTEND_REDIRECT_INDEX;
@@ -82,6 +83,18 @@ app.get("/auth/callback", async (req, res) => {
       maxAge: 3600000,
     });
 
+    const userResponse = await axios.get("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    });
+
+    const username = userResponse.data.login;
+    res.cookie("username", username, {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600000,
+    });
+
     // acess_token --> JWT
     const payload = { access_token };
     const secretKey = GITHUB_JWT_SECRET_KEY || "sua-chave-secreta";
@@ -93,7 +106,7 @@ app.get("/auth/callback", async (req, res) => {
     });
 
     // Redireciona para repositórios
-    const frontendRedirectUrl = `${FRONTEND_REDIRECT_REPOS}?username=ViniciusDSDSouza&sort=stars&page=1`;
+    const frontendRedirectUrl = `${FRONTEND_REDIRECT_REPOS}?username=${username}&sort=stars&page=1`;
     res.redirect(frontendRedirectUrl);
   } catch (err) {
     console.error(err);
@@ -119,7 +132,7 @@ app.get("/repos", async (req, res) => {
           per_page: 10,
         },
         headers: {
-          Accept: "application/vnd.github+json",
+          Authorization: GITHUB_PAT,
         },
       }
     );
@@ -154,7 +167,7 @@ app.post("/repos", async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: "Application/vnd.github+json",
+          Accept: GITHUB_PAT,
         },
       }
     );

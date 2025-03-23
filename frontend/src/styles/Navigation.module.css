@@ -1,0 +1,37 @@
+/* Container da navegação */
+nav {
+  background-color: #333;
+  padding: 10px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo da lista de navegação */
+nav ul {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Estilo de cada item da navegação */
+nav li {
+  padding: 0 15px;
+}
+
+/* Estilo dos links dentro da navegação */
+nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.2s;
+}
+
+/* Efeito de hover nos links */
+nav a:hover {
+  color: rgba(255, 255, 255, 0.668);
+  transform: scale(1.1);
+}

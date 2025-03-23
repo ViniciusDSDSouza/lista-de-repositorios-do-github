@@ -2,8 +2,7 @@ import React from "react";
 
 function App() {
   const handleLogin = () => {
-    const backendUrl =
-      "http://localhost:3000";
+    const backendUrl = "http://localhost:3000";
 
     const loginUrl = `${backendUrl}/auth/github`;
 
@@ -11,10 +10,10 @@ function App() {
   };
 
   return (
-    <header>
+    <div className="app">
       <h1>Login com Github</h1>
       <button onClick={handleLogin}>Login with GitHub</button>
-    </header>
+    </div>
   );
 }
 

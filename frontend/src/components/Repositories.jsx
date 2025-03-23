@@ -1,25 +1,33 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Navigation from "./Navigation";
 
 function Repositories() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const token = Cookies.get("jwt");
+  const username = Cookies.get("username");
 
   useEffect(() => {
     const fetchRepos = async () => {
       try {
-        // Pega o valor de 'page' da query string
         const queryParams = new URLSearchParams(location.search);
-        const page = queryParams.get("page") || 1; // Pega o valor de 'page', se não tiver, usa 1
-
-        const token = Cookies.get("jwt");
+        const pageFromUrl = parseInt(queryParams.get("page")) || 1;
+        setPage(pageFromUrl);
 
         if (!token) {
           console.log("JWT não encontrado [fetchRepos]");
+        }
+
+        if (!username) {
+          console.log("Nome de usuário não encontrado!");
         }
 
         const response = await axios.get("http://localhost:3000/repos", {
@@ -27,9 +35,9 @@ function Repositories() {
             Authorization: `Bearer ${token}`,
           },
           params: {
-            username: "ViniciusDSDSouza",
+            username: username,
             sort: "stars",
-            page: page, // Usando o valor de 'page' da URL
+            page: pageFromUrl,
           },
         });
 
@@ -44,16 +52,30 @@ function Repositories() {
     fetchRepos();
   }, [location.search]); // Quando a URL (ou os query params) mudar, o efeito é re-executado
 
+  const goToPreviousPage = () => {
+    if (page > 1) {
+      navigate(`/repos?username=${username}&sort=stars&page=${page - 1}`);
+    }
+  };
+
+  // Função para ir para a próxima página
+  const goToNextPage = () => {
+    navigate(`/repos?username=${username}&sort=stars&page=${page + 1}`);
+  };
+
   if (loading) {
     return <div>Carregando Repositórios</div>;
   }
 
   return (
     <div>
-      <h2>Meus Repositórios</h2>
-      <ul>
-        {repos.map((repo) => {
-          return (
+      <header>
+        <Navigation />
+      </header>
+      <main className="repositories">
+        <h2>Meus Repositórios</h2>
+        <ul>
+          {repos.map((repo) => (
             <li key={repo.id}>
               <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
                 {repo.name}
@@ -62,9 +84,16 @@ function Repositories() {
               <p>{repo.language}</p>
               <p>{repo.stargazers_count} estrelas</p>
             </li>
-          );
-        })}
-      </ul>
+          ))}
+        </ul>
+        <div>
+          <button onClick={goToPreviousPage} disabled={page === 1}>
+            Anterior
+          </button>
+          <span>Página {page}</span>
+          <button onClick={goToNextPage}>Próxima</button>
+        </div>
+      </main>
     </div>
   );
 }
