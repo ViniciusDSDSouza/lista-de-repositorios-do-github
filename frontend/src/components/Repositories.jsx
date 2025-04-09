@@ -3,16 +3,20 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
+import { jwtDecode } from "jwt-decode";
 
 function Repositories() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [repoToDelete, setRepoToDelete] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
 
   const token = Cookies.get("jwt");
+  const access_token = jwtDecode(token).access_token;
   const username = Cookies.get("username");
 
   useEffect(() => {
@@ -67,6 +71,41 @@ function Repositories() {
     return <div>Carregando Repositórios</div>;
   }
 
+  const handleDeleteClick = (repo) => {
+    setRepoToDelete({
+      owner: repo.owner.login,
+      name: repo.name,
+      id: repo.id,
+    });
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!repoToDelete) return;
+
+    try {
+      await axios.delete(
+        `http://localhost:3000/repos/${repoToDelete.owner}/${repoToDelete.name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
+
+      setRepos((prevRepos) =>
+        prevRepos.filter((repo) => repo.id !== repoToDelete.id)
+      );
+      setShowConfirmModal(false);
+      setRepoToDelete(null);
+      console.log(`Repositório [${repoToDelete.name}] deletado com sucesso!`);
+    } catch (error) {
+      console.error("Erro ao deletar:", error);
+      alert("Erro ao deletar repositório.");
+      setShowConfirmModal(false);
+    }
+  };
+
   return (
     <div>
       <header>
@@ -83,9 +122,33 @@ function Repositories() {
               <p>{repo.description || "Sem descrição"}</p>
               <p>{repo.language}</p>
               <p>{repo.stargazers_count} estrelas</p>
+              <button
+                className="red-button"
+                onClick={() => handleDeleteClick(repo)}
+              >
+                Deletar Repositório
+              </button>
             </li>
           ))}
         </ul>
+
+        {showConfirmModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <p>Tem certeza que deseja deletar este repositório?</p>
+              <button className="red-button" onClick={confirmDelete}>
+                Sim, deletar
+              </button>
+              <button
+                className="green-button"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
         <div>
           <button onClick={goToPreviousPage} disabled={page === 1}>
             Anterior
