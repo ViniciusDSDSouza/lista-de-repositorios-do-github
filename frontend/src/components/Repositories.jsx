@@ -15,6 +15,7 @@ function Repositories() {
   const navigate = useNavigate();
 
   const token = Cookies.get("jwt");
+  const access_token = Cookies.get("access_token");
   const username = Cookies.get("username");
 
   useEffect(() => {
@@ -69,8 +70,12 @@ function Repositories() {
     return <div>Carregando Repositórios</div>;
   }
 
-  const handleDeleteClick = (repoId) => {
-    setRepoToDelete(repoId);
+  const handleDeleteClick = (repo) => {
+    setRepoToDelete({
+      owner: repo.owner.login,
+      name: repo.name,
+      id: repo.id,
+    });
     setShowConfirmModal(true);
   };
 
@@ -78,18 +83,21 @@ function Repositories() {
     if (!repoToDelete) return;
 
     try {
-      await axios.delete(`http://localhost:3000/repos/${repoToDelete}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.delete(
+        `http://localhost:3000/repos/${repoToDelete.owner}/${repoToDelete.name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
 
-      // Atualiza a lista após deletar
       setRepos((prevRepos) =>
-        prevRepos.filter((repo) => repo.id !== repoToDelete)
+        prevRepos.filter((repo) => repo.id !== repoToDelete.id)
       );
       setShowConfirmModal(false);
       setRepoToDelete(null);
+      console.log(`Repositório [${repoToDelete.name}] deletado com sucesso!`);
     } catch (error) {
       console.error("Erro ao deletar:", error);
       alert("Erro ao deletar repositório.");
@@ -115,7 +123,7 @@ function Repositories() {
               <p>{repo.stargazers_count} estrelas</p>
               <button
                 className="red-button"
-                onClick={() => handleDeleteClick(repo.id)}
+                onClick={() => handleDeleteClick(repo)}
               >
                 Deletar Repositório
               </button>

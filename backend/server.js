@@ -33,14 +33,14 @@ app.use(express.json());
 app.use(
   cors({
     origin: FRONTEND_REDIRECT_INDEX, // Permitir apenas o frontend
-    methods: ["GET", "POST", "OPTIONS"], // Métodos permitidos
+    methods: ["GET", "POST", "OPTIONS", "DELETE"], // Métodos permitidos
     allowedHeaders: ["Content-Type", "Authorization"], // Cabeçalhos permitidos
   })
 );
 
 // Endpoint autenticação GitHub
 app.get("/auth/github", (req, res) => {
-  const githubAuthUrl = `${GITHUB_AUTH_URL}client_id=${GITHUB_CLIENT_ID}&redirect_uri=${ENDPOINT_CALLBACK}&scope=repo`;
+  const githubAuthUrl = `${GITHUB_AUTH_URL}client_id=${GITHUB_CLIENT_ID}&redirect_uri=${ENDPOINT_CALLBACK}&scope=repo,delete_repo`;
   res.redirect(githubAuthUrl);
 });
 
@@ -177,6 +177,31 @@ app.post("/repos", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Erro ao criar o repositório no Github.");
+  }
+});
+
+app.delete("/repos/:owner/:repo", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  const { owner, repo } = req.params;
+
+  if (!token) {
+    return res.status(401).send("Token de autenticação ausente.");
+  }
+
+  try {
+    await axios.delete(`https://api.github.com/repos/${owner}/${repo}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    res.status(200).json({ message: "Repositório deletado com sucesso!" });
+  } catch (error) {
+    console.error(
+      "Erro ao deletar repositório:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ message: "Erro ao deletar repositório." });
   }
 });
 
