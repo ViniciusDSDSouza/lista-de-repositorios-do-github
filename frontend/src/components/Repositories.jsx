@@ -8,6 +8,8 @@ function Repositories() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [repoToDelete, setRepoToDelete] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -67,6 +69,34 @@ function Repositories() {
     return <div>Carregando Repositórios</div>;
   }
 
+  const handleDeleteClick = (repoId) => {
+    setRepoToDelete(repoId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!repoToDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:3000/repos/${repoToDelete}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Atualiza a lista após deletar
+      setRepos((prevRepos) =>
+        prevRepos.filter((repo) => repo.id !== repoToDelete)
+      );
+      setShowConfirmModal(false);
+      setRepoToDelete(null);
+    } catch (error) {
+      console.error("Erro ao deletar:", error);
+      alert("Erro ao deletar repositório.");
+      setShowConfirmModal(false);
+    }
+  };
+
   return (
     <div>
       <header>
@@ -83,10 +113,33 @@ function Repositories() {
               <p>{repo.description || "Sem descrição"}</p>
               <p>{repo.language}</p>
               <p>{repo.stargazers_count} estrelas</p>
-              <button className="delete-button">Deletar Repositório</button>
+              <button
+                className="red-button"
+                onClick={() => handleDeleteClick(repo.id)}
+              >
+                Deletar Repositório
+              </button>
             </li>
           ))}
         </ul>
+
+        {showConfirmModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <p>Tem certeza que deseja deletar este repositório?</p>
+              <button className="red-button" onClick={confirmDelete}>
+                Sim, deletar
+              </button>
+              <button
+                className="green-button"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
         <div>
           <button onClick={goToPreviousPage} disabled={page === 1}>
             Anterior
