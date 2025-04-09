@@ -3,6 +3,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from "./Navigation";
+import { jwtDecode } from "jwt-decode";
 
 function Repositories() {
   const [repos, setRepos] = useState([]);
@@ -15,7 +16,7 @@ function Repositories() {
   const navigate = useNavigate();
 
   const token = Cookies.get("jwt");
-  const access_token = Cookies.get("access_token");
+  const access_token = jwtDecode(token).access_token;
   const username = Cookies.get("username");
 
   useEffect(() => {
