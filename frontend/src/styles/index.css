@@ -273,6 +273,10 @@ body {
     font-size: 1.2rem;
     color: #333;
   }
+
+  button.delete-button {
+    background-color: red;
+  }
 }
 
 .app {

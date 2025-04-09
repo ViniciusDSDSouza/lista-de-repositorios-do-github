@@ -83,6 +83,7 @@ function Repositories() {
               <p>{repo.description || "Sem descrição"}</p>
               <p>{repo.language}</p>
               <p>{repo.stargazers_count} estrelas</p>
+              <button className="delete-button">Deletar Repositório</button>
             </li>
           ))}
         </ul>
