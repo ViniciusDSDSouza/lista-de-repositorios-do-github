@@ -1,10 +1,5 @@
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const GITHUB_CREATE_REPO_URL = process.env.GITHUB_CREATE_REPO_URL;
-const GITHUB_PAT = process.env.GITHUB_PAT;
+import { GITHUB_CREATE_REPO_URL, GITHUB_PAT } from "../config/env.js";
 
 export const postRepos = async (req, res) => {
   const { name, description, isPrivate } = req.body;

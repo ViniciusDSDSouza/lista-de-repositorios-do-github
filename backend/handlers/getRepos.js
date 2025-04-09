@@ -1,9 +1,5 @@
 import axios from "axios";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const GITHUB_PAT = process.env.GITHUB_PAT;
+import { GITHUB_PAT } from "../config/env.js";
 
 export const getRepos = async (req, res) => {
   const { username, page = 1, sort } = req.query;
