@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import cors from "cors";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import { getRepos } from "./handlers/getRepos.js";
+import { postRepos } from "./handlers/postRepos.js";
+import { deleteRepos } from "./handlers/deleteRepos.js";
 
 dotenv.config();
 
@@ -114,96 +117,11 @@ app.get("/auth/callback", async (req, res) => {
   }
 });
 
-// endpoint /repos
-app.get("/repos", async (req, res) => {
-  const { username, page = 1, sort } = req.query;
+app.get("/repos", getRepos);
 
-  if (!username) {
-    return console.log("Parâmetro [username] ausente");
-  }
+app.post("/repos", postRepos);
 
-  try {
-    const response = await axios.get(
-      `https://api.github.com/users/${username}/repos`,
-      {
-        params: {
-          page,
-          sort,
-          per_page: 10,
-        },
-        headers: {
-          Authorization: GITHUB_PAT,
-        },
-      }
-    );
-
-    res.json(response.data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao buscar repositórios do Github");
-  }
-});
-
-app.post("/repos", async (req, res) => {
-  const { name, description, isPrivate } = req.body;
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!name) {
-    return res.status(400).send("O nome do repositoório é obrigatório.");
-  }
-
-  if (!token) {
-    return res.status(400).send("Token de autenticação não encontrado.");
-  }
-
-  try {
-    const response = await axios.post(
-      GITHUB_CREATE_REPO_URL,
-      {
-        name,
-        description,
-        private: isPrivate,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: GITHUB_PAT,
-        },
-      }
-    );
-
-    res.json(response.data);
-    console.log(response.data);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Erro ao criar o repositório no Github.");
-  }
-});
-
-app.delete("/repos/:owner/:repo", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  const { owner, repo } = req.params;
-
-  if (!token) {
-    return res.status(401).send("Token de autenticação ausente.");
-  }
-
-  try {
-    await axios.delete(`https://api.github.com/repos/${owner}/${repo}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    res.status(200).json({ message: "Repositório deletado com sucesso!" });
-  } catch (error) {
-    console.error(
-      "Erro ao deletar repositório:",
-      error.response?.data || error.message
-    );
-    res.status(500).json({ message: "Erro ao deletar repositório." });
-  }
-});
+app.delete("/repos/:owner/:repo", deleteRepos);
 
 app.listen(port, () => {
   console.log(`Server running at port: ${port}`);
