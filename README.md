@@ -54,6 +54,7 @@ Pesquisar repositórios GitHub de outros usuários.
 - **jsonwebtoken**: Geração e verificação de tokens JWT para autenticação.
 - **dotenv**: Carrega variáveis de ambiente.
 - **nodemon**: Ferramenta de desenvolvimento que reinicia o servidor automaticamente ao fazer alterações no código.
+- **Jest**: Framework de testes utilizado para os testes unitários.
 
 ## 📦 Instalação
 
@@ -84,6 +85,10 @@ Pesquisar repositórios GitHub de outros usuários.
 ## ⚙️ Configuração
 
 Certifique-se de configurar o arquivo `.env` na pasta `/backend` com as variáveis de ambiente necessárias.
+
+O backend não acessa diretamente o `.env`. Em vez disso, todas as variáveis de ambiente são centralizadas em `/config/env.js`, que carrega o `.env` internamente.
+
+Cada arquivo do backend importa apenas as variáveis necessárias de `config/env.js`, mantendo o código mais limpo e desacoplado.
 
 **Exemplo de arquivo `.env`:**
 
@@ -138,9 +143,20 @@ ENDPOINT_CALLBACK=http://localhost:3000/auth/callback
   }
   ```
 
+### 5. Deletar Repositório no GitHub
+
+- **DELETE /repos/:repoName**  
+  Deleta um repositório no GitHub pertencente ao usuário autenticado.
+
+  **Parâmetros de rota**:
+
+  - `repoName`: nome do repositório que será deletado.
+
 ## 📝 Scripts
 
 - **npm run dev**: Inicia o servidor no frontend usando Vite.
+- **node server.js**: Inicia o servidor no backend.
+- **npm test**: Roda os testes unitários com Jest no backend.
 
 ## 🤖 Autenticação
 
@@ -151,7 +167,6 @@ Este projeto usa **GitHub OAuth** para autenticar os usuários e permite a cria�
 - Implementar mais funcionalidades no painel de repositórios, como gerenciamento de favoritos.
 - Melhorar a interface de usuário com Modo Escuro/Claro.
 - Armazenar repositórios pesquisados no banco de dados para evitar muitas chamadas à API do GitHub.
-- Adicionar testes unitários e de integração para o backend e frontend.
 
 ## Autor
 
