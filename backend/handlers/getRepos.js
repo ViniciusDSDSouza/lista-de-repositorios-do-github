@@ -5,7 +5,7 @@ export const getRepos = async (req, res) => {
   const { username, page = 1, sort } = req.query;
 
   if (!username) {
-    return console.log("Parâmetro [username] ausente");
+    return res.status(400).send("Parâmetro [username] ausente");
   }
 
   try {

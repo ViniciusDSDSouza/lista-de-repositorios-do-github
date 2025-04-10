@@ -10,7 +10,7 @@ export const postRepos = async (req, res) => {
   }
 
   if (!token) {
-    return res.status(400).send("Token de autenticação não encontrado.");
+    return res.status(401).send("Token de autenticação não encontrado.");
   }
 
   try {
