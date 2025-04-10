@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GITHUB_CREATE_REPO_URL, GITHUB_PAT } from "../config/env.js";
+import { GITHUB_CREATE_REPO_URL } from "../config/env.js";
 
 export const postRepos = async (req, res) => {
   const { name, description, isPrivate } = req.body;
@@ -24,7 +24,7 @@ export const postRepos = async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: GITHUB_PAT,
+          Accept: "application/vnd.github+json",
         },
       }
     );
