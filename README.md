@@ -55,6 +55,7 @@ Pesquisar repositórios GitHub de outros usuários.
 - **dotenv**: Carrega variáveis de ambiente.
 - **nodemon**: Ferramenta de desenvolvimento que reinicia o servidor automaticamente ao fazer alterações no código.
 - **Jest**: Framework de testes utilizado para os testes unitários.
+- **Supertest**: Biblioteca para testar as rotas HTTP da API.
 
 ## 📦 Instalação
 
