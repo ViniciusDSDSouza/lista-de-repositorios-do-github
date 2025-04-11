@@ -63,4 +63,21 @@ describe("postRepos", () => {
       "Erro ao criar o repositório no Github."
     );
   });
+
+  it("should return 422 if repository name already exists", async () => {
+    // Simula um erro 422 vindo da API do GitHub
+    axios.post.mockRejectedValue({
+      response: {
+        status: 422,
+        data: {
+          message: "Repository creation failed: name already exists",
+        },
+      },
+    });
+
+    await postRepos(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.send).toHaveBeenCalledWith("Repositório já existe.");
+  });
 });

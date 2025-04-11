@@ -33,6 +33,11 @@ export const postRepos = async (req, res) => {
     console.log(response.data);
   } catch (err) {
     console.error(err);
+
+    if (err.response?.status === 422) {
+      return res.status(422).send("Repositório já existe.");
+    }
+
     res.status(500).send("Erro ao criar o repositório no Github.");
   }
 };
